@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  masari:
+    build: .
+    container_name: masari-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:./db/masari.db
+      # أضف مفتاح YouTube API إذا أردت استخدام استيراد YouTube
+      # - YOUTUBE_API_KEY=AIzaSy...
+    volumes:
+      # احفظ قاعدة البيانات خارج الـ container
+      - masari_db:/app/db
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:3000/api"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  masari_db:
+    driver: local

@@ -1,0 +1,38 @@
+# إعداد خادم التطوير / الاختبار المحلي
+:81 {
+	@transform_port_query {
+		query XTransformPort=*
+	}
+
+	handle @transform_port_query {
+		reverse_proxy localhost:{query.XTransformPort} {
+			header_up Host {host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Real-IP {remote_host}
+		}
+	}
+
+	handle {
+		reverse_proxy localhost:3000 {
+			header_up Host {host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Real-IP {remote_host}
+		}
+	}
+}
+
+# إعداد الاستضافة الحية مع النطاق وشهادة SSL تلقائية (قم بإلغاء التعليق وتعديل النطاق)
+# masari.yourdomain.com {
+#     # توجيه إلى حاوية Docker أو خادم Next.js المحلي على منفذ 3000
+#     reverse_proxy localhost:3000 {
+#         header_up Host {host}
+#         header_up X-Forwarded-For {remote}
+#         header_up X-Forwarded-Proto {scheme}
+#         header_up X-Real-IP {remote}
+#     }
+#
+#     # إعدادات ضغط الملفات لتسريع تحميل PWA
+#     encode gzip zstd
+# }
